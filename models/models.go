@@ -1,8 +1,27 @@
 package models
 
-import "time"
+import (
+	"errors"
+	"regexp"
+	"time"
+
+	"github.com/hashicorp/go-multierror"
+)
+
+// Validation regexs
+var (
+	phoneNumRegex *regexp.Regexp
+	emailRegex    *regexp.Regexp
+)
+
+func init() {
+	phoneNumRegex = regexp.MustCompile(`^[+]*[(]{0,1}[0-9]{1,4}[)]{0,1}[-\s\./0-9]*$`)
+	emailRegex = regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+\\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
+}
 
 type (
+	// Order struct  is used only to validate received orders, because, according to the assignment,
+	// the only thing known about the organization of the data is that the data is static.
 	Order struct {
 		OrderUID          string    `json:"order_uid"`
 		TrackNumber       string    `json:"track_number"`
@@ -55,3 +74,22 @@ type (
 		Status      int    `json:"status"`
 	}
 )
+
+func (o Order) Validate() error {
+	var err error
+	if o.OrderUID == "" {
+		err = multierror.Append(err, errors.New("empty order UID"))
+	}
+	if o.Payment.Transaction == "" {
+		err = multierror.Append(err, errors.New("empty payment transaction field"))
+	}
+	if !emailRegex.MatchString(o.Delivery.Email) {
+		err = multierror.Append(err, errors.New("incorrect delivery email"))
+	}
+	if !phoneNumRegex.MatchString(o.Delivery.Phone) {
+		err = multierror.Append(err, errors.New("incorrect delivery phone number"))
+	}
+	// TODO: add other validation for other fields
+
+	return err
+}
