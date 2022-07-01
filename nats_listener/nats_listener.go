@@ -1,11 +1,12 @@
 package nats_listener
 
 import (
+	"encoding/json"
 	"log"
-	"time"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/nats-io/stan.go"
+	"github.com/vanamelnik/wildberries-L0/models"
 )
 
 type NATSListener struct {
@@ -41,21 +42,14 @@ func (nl NATSListener) Close() (retErr error) {
 }
 
 func (nl NATSListener) msgHandler(msg *stan.Msg) {
-	log.Printf("natsListener: received msg:\n"+
-		"\tSequence: %v\n"+
-		"\tSubject: %v\n"+
-		"\tReply: %v\n"+
-		"\tData: %v\n"+
-		"\tTimestamp: %v\n"+
-		"\tRedelivered: %v\n"+
-		"\tRedeliveryCount: %v\n"+
-		"\tCRC32: %v\n\n",
-		msg.Sequence,
-		msg.Subject,
-		msg.Reply,
-		string(msg.Data),
-		time.Unix(0, msg.Timestamp),
-		msg.Redelivered,
-		msg.RedeliveryCount,
-		msg.CRC32)
+	var order models.Order
+	if err := json.Unmarshal(msg.Data, &order); err != nil {
+		log.Printf("natsListener: ERR: order rejected: incorrect order type: %s", err)
+		return
+	}
+	if err := order.Validate(); err != nil {
+		log.Printf("natsListener: ERR: order rejected: invalid order: %s", err)
+		return
+	}
+	log.Printf("natsListener: received order %q", order.OrderUID)
 }
