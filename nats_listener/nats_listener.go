@@ -54,7 +54,7 @@ func (nl NATSListener) msgHandler(msg *stan.Msg) {
 		msg.Subject,
 		msg.Reply,
 		string(msg.Data),
-		time.Unix(msg.Timestamp, 0),
+		time.Unix(0, msg.Timestamp),
 		msg.Redelivered,
 		msg.RedeliveryCount,
 		msg.CRC32)
