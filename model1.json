@@ -1,14 +1,14 @@
 {
   "order_uid": "b563feb7c2b24b6test",
-  "track_number": "WBILMTESTTRACK",
+  "track_number": "WBILMTESTTRACK1",
   "entry": "WBIL",
   "delivery": {
     "name": "Pest Pestov",
     "phone": "+9720300000",
     "zip": "2639802",
     "city": "Prypat",
-    "address": "Ploshad Mira 15",
-    "region": "Kraiot",
+    "address": "Ploshad Truda 15",
+    "region": "Chernobyl",
     "email": "test@mail.ru"
   },
   "payment": {
@@ -16,25 +16,25 @@
     "request_id": "",
     "currency": "RUB",
     "provider": "wbpay",
-    "amount": 1817,
+    "amount": 12400,
     "payment_dt": 1637907727,
     "bank": "sber",
-    "delivery_cost": 1500,
+    "delivery_cost": 4000,
     "goods_total": 317,
-    "custom_fee": 0
+    "custom_fee": 1000
   },
   "items": [
     {
       "chrt_id": 9934930,
-      "track_number": "WBILMTESTTRACK",
+      "track_number": "WBILMTESTTRACK1",
       "price": 453,
-      "rid": "ab4219087a764ae0btest",
-      "name": "Mascaras",
+      "rid": "ab4219064ae0btest22",
+      "name": "Foobar",
       "sale": 30,
       "size": "0",
       "total_price": 317,
       "nm_id": 2389212,
-      "brand": "Vivienne Sabo",
+      "brand": "Seirrebdliw",
       "status": 202
     }
   ],
@@ -44,6 +44,6 @@
   "delivery_service": "meest",
   "shardkey": "9",
   "sm_id": 99,
-  "date_created": "2021-11-26T06:22:19Z",
+  "date_created": "2022-01-26T06:22:19Z",
   "oof_shard": "1"
 }

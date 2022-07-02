@@ -7,17 +7,14 @@ import (
 	"syscall"
 
 	"github.com/vanamelnik/wildberries-L0/nats_listener"
+	"github.com/vanamelnik/wildberries-L0/storage/inmem"
 )
 
 func main() {
-	nl, err := nats_listener.New("cluster-L0", "orderServer", "orderServerSub", "orders")
+	s := inmem.NewStorage()
+	nl, err := nats_listener.New("cluster-L0", "orderServer", "orderServerSub", "orders", s)
 	must(err)
-	defer func() {
-		if err := nl.Close(); err != nil {
-			log.Println(err)
-		}
-		log.Println("App stopped")
-	}()
+	defer nl.Close()
 
 	log.Println("NATS Listener started")
 
