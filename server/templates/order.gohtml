@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Order</title>
+    </head>
+    <body>
+        <h3>Order summary</h3>
+        <ul>
+            <li>OrderUID: {{ .OrderUID }} </li>
+            <li>TrackNumber: {{ .TrackNumber }} </li>
+            <li>Entry: {{ .Entry }} </li>
+            <li>Delivery:
+                <ul>
+                    <li>Name: {{ .Delivery.Name }}</li>
+                    <li>Phone: {{ .Delivery.Phone }}</li>
+                    <li>ZIP: {{ .Delivery.ZIP }}</li>
+                    <li>City: {{ .Delivery.City }}</li>
+                    <li>Address: {{ .Delivery.Address }}</li>
+                    <li>Region: {{ .Delivery.Region }}</li>
+                    <li>Email: {{ .Delivery.Email }}</li>
+                </ul> </li>
+            <li>Payment: {
+                <ul>
+                    <li>Transaction: {{ .Payment.Transaction }}</li>
+                    <li>RequestID: {{ .Payment.RequestID }}</li>
+                    <li>Currency: {{ .Payment.Currency }}</li>
+                    <li>Provider: {{ .Payment.Provider }}</li>
+                    <li>Amount: {{ .Payment.Amount }}</li>
+                    <li>PaymentDt: {{ .Payment.PaymentDt }}</li>
+                    <li>Bank: {{ .Payment.Bank }}</li>
+                    <li>DeliveryCost: {{ .Payment.DeliveryCost }}</li>
+                    <li>GoodsTotal: {{ .Payment.GoodsTotal }}</li>
+                    <li>CustomFee: {{ .Payment.CustomFee }}</li>
+                </ul></li>
+            <li>Items:
+                <ul>
+                    {{range .Items}}<li>ChrtID: {{ .ChrtID }}<ul>
+                        <li>TrackNumber: {{ .TrackNumber }}</li>
+                        <li>Price: {{ .Price }}</li>
+                        <li>RID: {{ .RID }}</li>
+                        <li>Name: {{ .Name }}</li>
+                        <li>Sale: {{ .Sale }}</li>
+                        <li>Size: {{ .Size }}</li>
+                        <li>TotalPrice: {{ .TotalPrice }}</li>
+                        <li>NmID: {{ .NmID }}</li>
+                        <li>Brand: {{ .Brand }}</li>
+                        <li>Status: {{ .Status }}</li>
+                    </ul></li>{{end}}
+                </ul></li>
+            <li>Locale: {{ .Locale }} </li>
+            <li>InternalSignature: {{ .InternalSignature }} </li>
+            <li>Shardkey: {{ .Shardkey }} </li>
+            <li>SmID: {{ .SmID }} </li>
+            <li>DateCreated: {{ .DateCreated }} </li>
+            <li>OOFShard: {{ .OOFShard }} </li>
+        </ul>
+        <br>
+        <a href="/">Back to index</a>
+</html>

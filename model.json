@@ -1,24 +1,24 @@
 {
-  "order_uid": "b563feb7c2b24b6test",
+  "order_uid": "b563feb7b2b84b6test",
   "track_number": "WBILMTESTTRACK",
   "entry": "WBIL",
   "delivery": {
-    "name": "Pest Pestov",
-    "phone": "+9720300000",
-    "zip": "2639802",
-    "city": "Prypat",
+    "name": "Test Testov",
+    "phone": "+9720000000",
+    "zip": "2639809",
+    "city": "Kiryat Mozkin",
     "address": "Ploshad Mira 15",
     "region": "Kraiot",
-    "email": "test@mail.ru"
+    "email": "test@gmail.com"
   },
   "payment": {
     "transaction": "b563feb7b2b84b6test",
     "request_id": "",
-    "currency": "RUB",
+    "currency": "USD",
     "provider": "wbpay",
     "amount": 1817,
     "payment_dt": 1637907727,
-    "bank": "sber",
+    "bank": "alpha",
     "delivery_cost": 1500,
     "goods_total": 317,
     "custom_fee": 0
@@ -40,7 +40,7 @@
   ],
   "locale": "en",
   "internal_signature": "",
-  "customer_id": "test1",
+  "customer_id": "test",
   "delivery_service": "meest",
   "shardkey": "9",
   "sm_id": 99,

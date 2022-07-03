@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Wilderries orders list</title>
+    </head>
+    <body>
+        {{if .}}
+        <h3>List of the orders:</h3>
+        <ul>
+            {{range .}}
+                <li><a href="/{{.OrderUID}}">{{.OrderUID}} - {{.Delivery.Name}} - {{.Delivery.City}}</a></li>
+            {{end}}
+        </ul>
+        {{ else }}
+            <p> No orders in the storage</p>
+        {{ end }}
+</html>

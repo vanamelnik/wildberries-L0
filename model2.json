@@ -1,0 +1,62 @@
+{
+  "order_uid": "w4443feb7c24g43b6test",
+  "track_number": "WBILMTESTTRACK2",
+  "entry": "WBIL",
+  "delivery": {
+    "name": "Rest Restov",
+    "phone": "+91111300000",
+    "zip": "2639802",
+    "city": "Leningrad",
+    "address": "Nevsky pr. 102",
+    "region": "Leningrad",
+    "email": "test@yandex.ru"
+  },
+  "payment": {
+    "transaction": "b563fe111b2b84b6test",
+    "request_id": "",
+    "currency": "EUR",
+    "provider": "wbpay",
+    "amount": 12400,
+    "payment_dt": 1637907727,
+    "bank": "tinkoff",
+    "delivery_cost": 4000,
+    "goods_total": 317,
+    "custom_fee": 1000
+  },
+  "items": [
+    {
+      "chrt_id": 2934930,
+      "track_number": "WBILMTESTTRACK1",
+      "price": 45,
+      "rid": "ab4219064ae0btest22",
+      "name": "Katana",
+      "sale": 30,
+      "size": "0",
+      "total_price": 317,
+      "nm_id": 2389212,
+      "brand": "Hatori Hanso",
+      "status": 202
+    },
+    {
+        "chrt_id": 993493011,
+        "track_number": "WBILMTESTTRACK1",
+        "price": 4,
+        "rid": "ab4219064ae0btest22",
+        "name": "Sushi",
+        "sale": 30,
+        "size": "0",
+        "total_price": 317,
+        "nm_id": 2389212,
+        "brand": "Hatori Hanso",
+        "status": 202
+      }
+  ],
+  "locale": "en",
+  "internal_signature": "",
+  "customer_id": "test1",
+  "delivery_service": "meest",
+  "shardkey": "9",
+  "sm_id": 99,
+  "date_created": "2022-01-26T06:22:19Z",
+  "oof_shard": "1"
+}

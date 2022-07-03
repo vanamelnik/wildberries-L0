@@ -3,6 +3,7 @@ module github.com/vanamelnik/wildberries-L0
 go 1.18
 
 require (
+	github.com/gorilla/mux v1.8.0
 	github.com/hashicorp/go-multierror v1.1.1
 	github.com/jackc/pgx/v4 v4.16.1
 	github.com/nats-io/stan.go v0.10.2
@@ -28,4 +29,5 @@ require (
 	golang.org/x/crypto v0.0.0-20220315160706-3147a52a75dd // indirect
 	golang.org/x/text v0.3.7 // indirect
 	google.golang.org/protobuf v1.28.0 // indirect
+	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
