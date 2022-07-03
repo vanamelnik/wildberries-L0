@@ -8,9 +8,17 @@ import (
 
 	"github.com/vanamelnik/wildberries-L0/nats_listener"
 	"github.com/vanamelnik/wildberries-L0/storage/inmem"
+	"github.com/vanamelnik/wildberries-L0/storage/postgres"
 )
 
+const databaseURI = "postgresql://postgres:qwe123@localhost:5432/wildberries_l0"
+
 func main() {
+	pg, err := postgres.NewStorage(databaseURI)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer pg.Close()
 	s := inmem.NewStorage()
 	nl, err := nats_listener.New("cluster-L0", "orderServer", "orderServerSub", "orders", s)
 	must(err)
