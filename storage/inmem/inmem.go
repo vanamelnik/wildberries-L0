@@ -1,6 +1,7 @@
 package inmem
 
 import (
+	"fmt"
 	"sync"
 
 	"github.com/vanamelnik/wildberries-L0/storage"
@@ -8,15 +9,36 @@ import (
 
 var _ storage.Storage = (*Storage)(nil)
 
-type Storage struct {
-	mu         *sync.RWMutex
-	repository map[string]string
-}
+type (
+	Storage struct {
+		mu                *sync.RWMutex
+		repository        map[string]string
+		persistentStorage storage.Storage
+	}
 
-func NewStorage() *Storage {
-	return &Storage{
+	StorageOpt func(s *Storage) error
+)
+
+func NewStorage(opts ...StorageOpt) (*Storage, error) {
+	s := &Storage{
 		mu:         &sync.RWMutex{},
 		repository: make(map[string]string),
+	}
+	for _, opt := range opts {
+		if err := opt(s); err != nil {
+			return nil, fmt.Errorf("storage: inmem: could not apply option: %w", err)
+		}
+	}
+
+	return s, nil
+}
+
+func WithPersistentStorage(ps storage.Storage) StorageOpt {
+	return func(s *Storage) error {
+		orders, err := ps.GetAll()
+		if err != nil {
+			return err
+		}
 	}
 }
 
