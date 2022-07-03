@@ -14,14 +14,9 @@ import (
 type (
 	Storage struct {
 		db      *sql.DB
-		storeCh chan orderDB
+		storeCh chan storage.OrderDB
 		stopCh  chan struct{}
 		wg      *sync.WaitGroup
-	}
-
-	orderDB struct {
-		orderUID  string
-		jsonOrder string
 	}
 )
 
@@ -43,7 +38,7 @@ func NewStorage(databaseURI string) (*Storage, error) {
 	}
 	s := &Storage{
 		db:      db,
-		storeCh: make(chan orderDB),
+		storeCh: make(chan storage.OrderDB),
 		stopCh:  make(chan struct{}),
 		wg:      &sync.WaitGroup{},
 	}
@@ -73,27 +68,27 @@ func (s *Storage) Get(orderUID string) (string, error) {
 	return order, nil
 }
 
-func (s *Storage) GetAll() ([]string, error) {
-	orders := make([]string, 0)
-	rows, err := s.db.Query("SELECT order FROM orders;")
+func (s *Storage) GetAll() ([]storage.OrderDB, error) {
+	orders := make([]storage.OrderDB, 0)
+	rows, err := s.db.Query("SELECT uid, json_order FROM orders;")
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 	for rows.Next() {
-		var order string
-		if err := rows.Scan(&order); err != nil {
+		var o storage.OrderDB
+		if err := rows.Scan(&o.OrderUID, &o.JSONOrder); err != nil {
 			return nil, err
 		}
-		orders = append(orders, order)
+		orders = append(orders, o)
 	}
 	return orders, nil
 }
 
 func (s *Storage) Store(orderUID, order string) error {
-	s.storeCh <- orderDB{
-		orderUID:  orderUID,
-		jsonOrder: order,
+	s.storeCh <- storage.OrderDB{
+		OrderUID:  orderUID,
+		JSONOrder: order,
 	}
 	return nil
 }
@@ -103,10 +98,10 @@ func (s *Storage) storer() {
 	for {
 		select {
 		case o := <-s.storeCh:
-			if _, err := s.db.Exec(`INSERT INTO orders (uid, json_order) VALUES ($1, $2)`, o.orderUID, o.jsonOrder); err != nil {
-				log.Printf("storage: postgres: ERR: could not store the order %s: %s", o.orderUID, err)
+			if _, err := s.db.Exec(`INSERT INTO orders (uid, json_order) VALUES ($1, $2)`, o.OrderUID, o.JSONOrder); err != nil {
+				log.Printf("storage: postgres: ERR: could not store the order %s: %s", o.OrderUID, err)
 			} else {
-				log.Printf("storage: postgres: order %s sucessfully stored", o.orderUID)
+				log.Printf("storage: postgres: order %s sucessfully stored", o.OrderUID)
 			}
 		case <-s.stopCh:
 			log.Println("storage: postgres: storer stopped")

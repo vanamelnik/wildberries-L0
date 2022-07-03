@@ -2,6 +2,7 @@ package inmem
 
 import (
 	"fmt"
+	"log"
 	"sync"
 
 	"github.com/vanamelnik/wildberries-L0/storage"
@@ -39,6 +40,14 @@ func WithPersistentStorage(ps storage.Storage) StorageOpt {
 		if err != nil {
 			return err
 		}
+		for _, o := range orders {
+			s.Store(o.OrderUID, o.JSONOrder)
+		}
+		s.persistentStorage = ps
+		if len(orders) > 0 {
+			log.Printf("storage: inmem: %d record(s) successfully imported from the database", len(orders))
+		}
+		return nil
 	}
 }
 
@@ -49,6 +58,9 @@ func (s *Storage) Store(orderUID, jsonOrder string) error {
 		return storage.ErrAlreadyExists
 	}
 	s.repository[orderUID] = jsonOrder
+	if s.persistentStorage != nil {
+		s.persistentStorage.Store(orderUID, jsonOrder)
+	}
 	return nil
 }
 
@@ -62,12 +74,15 @@ func (s *Storage) Get(orderUID string) (string, error) {
 	return order, nil
 }
 
-func (s *Storage) GetAll() ([]string, error) {
+func (s *Storage) GetAll() ([]storage.OrderDB, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
-	orders := make([]string, 0, len(s.repository))
-	for _, order := range s.repository {
-		orders = append(orders, order)
+	orders := make([]storage.OrderDB, 0, len(s.repository))
+	for uid, order := range s.repository {
+		orders = append(orders, storage.OrderDB{
+			OrderUID:  uid,
+			JSONOrder: order,
+		})
 	}
 	return orders, nil
 }
