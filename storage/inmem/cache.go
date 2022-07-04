@@ -8,20 +8,20 @@ import (
 	"github.com/vanamelnik/wildberries-L0/storage"
 )
 
-var _ storage.Storage = (*Storage)(nil)
+var _ storage.Storage = (*Cache)(nil)
 
 type (
-	Storage struct {
+	Cache struct {
 		mu                *sync.RWMutex
 		repository        map[string]string
 		persistentStorage storage.Storage
 	}
 
-	StorageOpt func(s *Storage) error
+	StorageOpt func(s *Cache) error
 )
 
-func NewStorage(opts ...StorageOpt) (*Storage, error) {
-	s := &Storage{
+func NewCache(opts ...StorageOpt) (*Cache, error) {
+	s := &Cache{
 		mu:         &sync.RWMutex{},
 		repository: make(map[string]string),
 	}
@@ -35,7 +35,7 @@ func NewStorage(opts ...StorageOpt) (*Storage, error) {
 }
 
 func WithPersistentStorage(ps storage.Storage) StorageOpt {
-	return func(s *Storage) error {
+	return func(s *Cache) error {
 		orders, err := ps.GetAll()
 		if err != nil {
 			return err
@@ -51,7 +51,7 @@ func WithPersistentStorage(ps storage.Storage) StorageOpt {
 	}
 }
 
-func (s *Storage) Store(orderUID, jsonOrder string) error {
+func (s *Cache) Store(orderUID, jsonOrder string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	if _, ok := s.repository[orderUID]; ok {
@@ -64,7 +64,7 @@ func (s *Storage) Store(orderUID, jsonOrder string) error {
 	return nil
 }
 
-func (s *Storage) Get(orderUID string) (string, error) {
+func (s *Cache) Get(orderUID string) (string, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 	order, ok := s.repository[orderUID]
@@ -74,7 +74,7 @@ func (s *Storage) Get(orderUID string) (string, error) {
 	return order, nil
 }
 
-func (s *Storage) GetAll() ([]storage.OrderDB, error) {
+func (s *Cache) GetAll() ([]storage.OrderDB, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 	orders := make([]storage.OrderDB, 0, len(s.repository))

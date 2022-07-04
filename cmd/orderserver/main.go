@@ -24,7 +24,7 @@ func main() {
 		log.Fatal(err)
 	}
 	defer logIfError(pg.Close)
-	s, err := inmem.NewStorage(inmem.WithPersistentStorage(pg))
+	s, err := inmem.NewCache(inmem.WithPersistentStorage(pg))
 	must(err)
 	nl, err := nats_listener.New("cluster-L0", "orderServer", "orderServerSub", "orders", s)
 	must(err)
@@ -42,7 +42,7 @@ func main() {
 		}
 	}()
 
-	sigint := make(chan os.Signal)
+	sigint := make(chan os.Signal, 1)
 	signal.Notify(sigint, syscall.SIGTERM, syscall.SIGINT, syscall.SIGQUIT)
 	<-sigint
 	log.Println("Shutting down...")
