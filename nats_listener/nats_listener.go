@@ -10,12 +10,16 @@ import (
 	"github.com/vanamelnik/wildberries-L0/storage"
 )
 
+// NATSListener is used for listening to the NATS streaming server.
+// When a message (order) from the given subject is received, it is stored in the storage provided.
 type NATSListener struct {
 	sc  stan.Conn
 	sub stan.Subscription
 	s   storage.Storage
 }
 
+// New creates a new connection to the nats-streaming-server and registers a callback method that
+// processes incoming orders.
 func New(stanCluster, clientID, durableName, subject string, s storage.Storage) (NATSListener, error) {
 	sc, err := stan.Connect(stanCluster, clientID)
 	if err != nil {
@@ -34,6 +38,7 @@ func New(stanCluster, clientID, durableName, subject string, s storage.Storage) 
 	return nl, nil
 }
 
+// Close closes nats streaming subscription and connection.
 func (nl NATSListener) Close() (retErr error) {
 	if err := nl.sub.Close(); err != nil {
 		retErr = multierror.Append(retErr, err)
@@ -44,6 +49,7 @@ func (nl NATSListener) Close() (retErr error) {
 	return
 }
 
+// msgHandler is a callback function that sends all incoming orders to the storage.
 func (nl NATSListener) msgHandler(msg *stan.Msg) {
 	var order models.Order
 	if err := json.Unmarshal(msg.Data, &order); err != nil {

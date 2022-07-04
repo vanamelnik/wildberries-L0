@@ -20,8 +20,7 @@ func init() {
 }
 
 type (
-	// Order struct  is used only to validate received orders, because, according to the assignment,
-	// the only thing known about the organization of the data is that the data is static.
+	// Order represents an order received by the message broker.
 	Order struct {
 		OrderUID          string    `json:"order_uid"`
 		TrackNumber       string    `json:"track_number"`

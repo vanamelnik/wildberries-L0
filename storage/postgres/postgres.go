@@ -11,7 +11,11 @@ import (
 	"github.com/vanamelnik/wildberries-L0/storage"
 )
 
+const storeChSize = 1000 // the size of storeCh buffer
+
 type (
+	// Storage is an implementation of storage.Storage using Postgresql db engine.
+	// Saving the orders works in async mode.
 	Storage struct {
 		db      *sql.DB
 		storeCh chan storage.OrderDB
@@ -25,6 +29,7 @@ var _ storage.Storage = (*Storage)(nil)
 //go:embed schema.sql
 var queryCreate string
 
+// NewStorage connects to the postgres database and runs the worker that stores all incoming orders.
 func NewStorage(databaseURI string) (*Storage, error) {
 	db, err := sql.Open("pgx", databaseURI)
 	if err != nil {
@@ -38,7 +43,7 @@ func NewStorage(databaseURI string) (*Storage, error) {
 	}
 	s := &Storage{
 		db:      db,
-		storeCh: make(chan storage.OrderDB),
+		storeCh: make(chan storage.OrderDB, storeChSize),
 		stopCh:  make(chan struct{}),
 		wg:      &sync.WaitGroup{},
 	}
@@ -47,6 +52,7 @@ func NewStorage(databaseURI string) (*Storage, error) {
 	return s, nil
 }
 
+// Close stops the worker and closes the db connection.
 func (s *Storage) Close() error {
 	if s.stopCh != nil {
 		close(s.stopCh)
@@ -56,6 +62,7 @@ func (s *Storage) Close() error {
 	return s.db.Close()
 }
 
+// Get implements storage.Storage interface.
 func (s *Storage) Get(orderUID string) (string, error) {
 	var order string
 	err := s.db.QueryRow(`SELECT json_order FROM orders WHERE uid = $1;`, orderUID).Scan(&order)
@@ -68,6 +75,7 @@ func (s *Storage) Get(orderUID string) (string, error) {
 	return order, nil
 }
 
+// GetAll implements storage.Storage interface.
 func (s *Storage) GetAll() ([]storage.OrderDB, error) {
 	orders := make([]storage.OrderDB, 0)
 	rows, err := s.db.Query("SELECT uid, json_order FROM orders;")
@@ -85,6 +93,8 @@ func (s *Storage) GetAll() ([]storage.OrderDB, error) {
 	return orders, nil
 }
 
+// Store implements storage.Storage interface.
+// NB Store method works in async mode and only logs errors that have occured.
 func (s *Storage) Store(orderUID, order string) error {
 	s.storeCh <- storage.OrderDB{
 		OrderUID:  orderUID,
@@ -93,6 +103,8 @@ func (s *Storage) Store(orderUID, order string) error {
 	return nil
 }
 
+// storer is the worker function that listens to the storeCh channel and stores
+// all incoming orders to the database.
 func (s *Storage) storer() {
 	log.Println("storage: postgres: storer started")
 	for {

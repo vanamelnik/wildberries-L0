@@ -1,5 +1,7 @@
 package inmem
 
+// inmem is in-memory cache that could be also used as independed repository.
+
 import (
 	"fmt"
 	"log"
@@ -11,6 +13,9 @@ import (
 var _ storage.Storage = (*Cache)(nil)
 
 type (
+	// Cache is an in-memory implementation of storage.Storage.
+	// It could be used as indepened repository or use another storage.Storage object
+	// for persistent storage.
 	Cache struct {
 		mu                *sync.RWMutex
 		repository        map[string]string
@@ -20,6 +25,7 @@ type (
 	StorageOpt func(s *Cache) error
 )
 
+// NewCache creates a new in-memory repository and registers persistent storage if provided.
 func NewCache(opts ...StorageOpt) (*Cache, error) {
 	s := &Cache{
 		mu:         &sync.RWMutex{},
@@ -27,13 +33,14 @@ func NewCache(opts ...StorageOpt) (*Cache, error) {
 	}
 	for _, opt := range opts {
 		if err := opt(s); err != nil {
-			return nil, fmt.Errorf("storage: inmem: could not apply option: %w", err)
+			return nil, fmt.Errorf("storage: cache: could not apply option: %w", err)
 		}
 	}
 
 	return s, nil
 }
 
+// WithPersistentStorage registers a given storage.Storage object as persistent storage.
 func WithPersistentStorage(ps storage.Storage) StorageOpt {
 	return func(s *Cache) error {
 		orders, err := ps.GetAll()
@@ -51,6 +58,7 @@ func WithPersistentStorage(ps storage.Storage) StorageOpt {
 	}
 }
 
+// Store implements storage.Storage interface.
 func (s *Cache) Store(orderUID, jsonOrder string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -64,6 +72,7 @@ func (s *Cache) Store(orderUID, jsonOrder string) error {
 	return nil
 }
 
+// Get implements storage.Storage interface.
 func (s *Cache) Get(orderUID string) (string, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -74,6 +83,7 @@ func (s *Cache) Get(orderUID string) (string, error) {
 	return order, nil
 }
 
+// GetAll implements storage.Storage interface.
 func (s *Cache) GetAll() ([]storage.OrderDB, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
