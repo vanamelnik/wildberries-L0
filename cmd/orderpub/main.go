@@ -1,5 +1,7 @@
 package main
 
+// orderpub is a publisher of json orders to nats-streaming-server
+
 import (
 	"bufio"
 	"fmt"
@@ -10,8 +12,14 @@ import (
 	"github.com/nats-io/stan.go"
 )
 
+const (
+	clusterName = "cluster-L0"
+	clientID    = "orderPub"
+	subject     = "orders"
+)
+
 func main() {
-	sc, err := stan.Connect("cluster-L0", "serverpub")
+	sc, err := stan.Connect(clusterName, clientID)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -24,7 +32,7 @@ func main() {
 	} else {
 		order = readFromFile()
 	}
-	if err := sc.Publish("orders", []byte(order)); err != nil {
+	if err := sc.Publish(subject, []byte(order)); err != nil {
 		log.Fatal(err)
 	}
 	log.Println("Order sent")

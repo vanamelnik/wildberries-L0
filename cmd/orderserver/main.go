@@ -1,5 +1,9 @@
 package main
 
+// orderserver is a service that listens to nats-streaming-server
+// and stores all incoming oreders (from the subject "orders")
+// to the postgres database using in-memory cache
+
 import (
 	"context"
 	"log"
@@ -16,6 +20,10 @@ import (
 const (
 	databaseURI = "postgresql://postgres:secret@localhost:5432/wildberries_l0"
 	addr        = ":8080"
+	clusterName = "cluster-L0"
+	clientID    = "orderServer"
+	durableName = "orderSeverSub"
+	subject     = "orders"
 )
 
 func main() {
@@ -24,9 +32,11 @@ func main() {
 		log.Fatal(err)
 	}
 	defer logIfError(pg.Close)
+
 	s, err := inmem.NewCache(inmem.WithPersistentStorage(pg))
 	must(err)
-	nl, err := nats_listener.New("cluster-L0", "orderServer", "orderServerSub", "orders", s)
+
+	nl, err := nats_listener.New(clusterName, clientID, durableName, subject, s)
 	must(err)
 	defer logIfError(nl.Close)
 
@@ -54,8 +64,10 @@ func must(err error) {
 	}
 }
 
-func logIfError(closeFn func() error) {
-	if err := closeFn(); err != nil {
+// logIfError is used to log an error thrown by the function that is running in a gouroutine
+// or deferred function.
+func logIfError(fn func() error) {
+	if err := fn(); err != nil {
 		log.Println(err)
 	}
 }

@@ -1,5 +1,7 @@
 package postgres
 
+// The postgres test container is used to test the postgres package.
+
 import (
 	"context"
 	"fmt"
@@ -44,7 +46,6 @@ func TestMain(m *testing.M) {
 	if err := pgContainer.Start(ctx); err != nil {
 		log.Fatal(err)
 	}
-	log.Printf("DSN: %s", pgContainer.GetDSN()) //TODO: remove debug
 	pg, err := NewStorage(pgContainer.GetDSN())
 	if err != nil {
 		log.Fatal(err)
@@ -53,6 +54,7 @@ func TestMain(m *testing.M) {
 	m.Run()
 }
 
+// setupPostgresContainer creates a new instance of postgres docker container.
 func setupPostgresContainer(ctx context.Context) (*postgresContainer, error) {
 	req := testcontainers.GenericContainerRequest{
 		ContainerRequest: testcontainers.ContainerRequest{
@@ -90,6 +92,7 @@ func setupPostgresContainer(ctx context.Context) (*postgresContainer, error) {
 	}, nil
 }
 
+// cleanOrdersTable removes all records from the 'orders' table in the database.
 func cleanOrdersTable(t *testing.T) {
 	_, err := pgMockStorage.db.Exec(`DELETE FROM orders;`)
 	require.NoErrorf(t, err, "could not delete all records from the orders table")

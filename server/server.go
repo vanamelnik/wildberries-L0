@@ -21,6 +21,7 @@ var (
 	orderFile string
 )
 
+// Server is a HTTP server that handles requests for displaying the orders from the storage.
 type Server struct {
 	http.Server
 
@@ -30,6 +31,7 @@ type Server struct {
 	router   *mux.Router
 }
 
+// New creates a new server and registers the routes.
 func New(addr string, s storage.Storage) (*Server, error) {
 	mainTpl, err := template.New("index").Parse(indexFile)
 	if err != nil {
@@ -54,6 +56,8 @@ func New(addr string, s storage.Storage) (*Server, error) {
 	return &server, nil
 }
 
+// indexHandler shows the list of the orders in the storage.
+// path: GET /
 func (srv *Server) indexHandler(w http.ResponseWriter, r *http.Request) {
 	records, err := srv.s.GetAll()
 	if err != nil {
@@ -69,6 +73,8 @@ func (srv *Server) indexHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// orderHandler shows the order provided in the path.
+// path: GET /{orderUID}
 func (srv *Server) orderHandler(w http.ResponseWriter, r *http.Request) {
 	uid, ok := mux.Vars(r)["uid"]
 	if !ok {
@@ -99,6 +105,7 @@ func (srv *Server) orderHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// fillOrders converts given db rows to the list of models.Order structs.
 func fillOrders(records []storage.OrderDB) []models.Order {
 	orders := make([]models.Order, 0, len(records))
 	for _, rec := range records {

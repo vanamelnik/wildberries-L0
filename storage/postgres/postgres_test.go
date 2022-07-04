@@ -1,8 +1,12 @@
 package postgres
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
+	"sort"
+	"strconv"
+	"sync"
 	"testing"
 	"time"
 
@@ -33,18 +37,48 @@ func TestPostgres(t *testing.T) {
 		for _, o := range fixtures {
 			assert.NoError(t, pgMockStorage.Store(o.OrderUID, o.JSONOrder))
 		}
-		time.Sleep(50 * time.Millisecond)
+		start := time.Now()
+		wg := new(sync.WaitGroup)
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			timeout, cancelFn := context.WithTimeout(context.Background(), time.Second*30)
+			defer cancelFn()
+			ticker := time.NewTicker(100 * time.Millisecond)
+			for {
+				select {
+				case <-timeout.Done():
+					t.Log(timeout.Err())
+					return
+				case <-ticker.C:
+					if numOrders(t) == 1000 {
+						return
+					}
+				}
+			}
+		}()
+		t.Log("Waiting...")
+		wg.Wait()
+		t.Logf("done in %v", time.Since(start))
 	})
 	t.Run("Get all", func(t *testing.T) {
 		got, err := pgMockStorage.GetAll()
 		assert.NoError(t, err)
-		assert.Equal(t, 1000, len(got))
+		require.Equal(t, 1000, len(got))
+		sort.Slice(got, func(i, j int) bool {
+			iUID, err := strconv.Atoi(got[i].OrderUID)
+			require.NoError(t, err)
+			jUID, err := strconv.Atoi(got[j].OrderUID)
+			require.NoError(t, err)
+			return iUID < jUID
+		})
 		for i := range fixtures {
 			assert.Equal(t, fixtures[i].OrderUID, got[i].OrderUID)
 			assert.JSONEq(t, fixtures[i].JSONOrder, got[i].JSONOrder)
 		}
 	})
 	t.Run("Test Get()", func(t *testing.T) {
+		require.Equal(t, 1000, numOrders(t))
 		for i := range fixtures {
 			order, err := pgMockStorage.Get(fmt.Sprint(i + 1))
 			assert.NoError(t, err)
@@ -58,4 +92,11 @@ func TestGetError(t *testing.T) {
 		_, err := pgMockStorage.Get("nihil")
 		assert.ErrorIs(t, err, storage.ErrNotFound)
 	})
+}
+
+func numOrders(t *testing.T) int {
+	var res int
+	err := pgMockStorage.db.QueryRow(`SELECT COUNT(*) FROM orders;`).Scan(&res)
+	require.NoError(t, err)
+	return res
 }
