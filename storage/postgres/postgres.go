@@ -58,7 +58,7 @@ func (s *Storage) Close() error {
 
 func (s *Storage) Get(orderUID string) (string, error) {
 	var order string
-	err := s.db.QueryRow(`SELECT order FROM orders WHERE uid = $1`, orderUID).Scan(&order)
+	err := s.db.QueryRow(`SELECT json_order FROM orders WHERE uid = $1;`, orderUID).Scan(&order)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return "", storage.ErrNotFound

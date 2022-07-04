@@ -69,7 +69,7 @@ func setupPostgresContainer(ctx context.Context) (*postgresContainer, error) {
 				func(p nat.Port) string {
 					return fmt.Sprintf("postgres://%s:%s@localhost:%s/%s?sslmode=disable", pgUser, pgPassword, p.Port(), pgDatabase)
 				},
-			).Timeout(5 * time.Second),
+			).Timeout(30 * time.Second),
 			Name:       "postgres-mock",
 			SkipReaper: true,
 		},
